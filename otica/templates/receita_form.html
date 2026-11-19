@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf %}
+{% block conteudo %}
+<div class="card">
+<h1>{{ 'Editar receita' if receita else 'Nova receita' }} · {{ c.nome }}</h1>
+<form method="post">
+  {{ csrf() }}
+  <div class="campos">
+    <div><label for="data">Data da consulta</label><input id="data" type="date" name="data" value="{{ f.get('data','') }}" required></div>
+    <div class="largo"><label for="obs">Observações</label><input id="obs" name="obs" value="{{ f.get('obs','') }}" maxlength="300"></div>
+  </div>
+  <div class="tw"><table class="rx">
+    <tr><th></th><th>Esférico</th><th>Cilíndrico</th><th>Eixo</th><th>Adição</th><th>DNP</th></tr>
+    {% for o in ['od','oe'] %}<tr><th>{{ o|upper }}</th>
+      {% for k in GRAUS %}<td><input name="{{ o }}_{{ k }}" value="{{ f.get(o ~ '_' ~ k, '') }}" maxlength="20" aria-label="{{ o|upper }} {{ k }}"></td>{% endfor %}</tr>{% endfor %}
+  </table></div>
+  <div class="acoes"><button class="btn">Salvar receita</button><a class="btn sec" href="{{ url_for('clientes.ver', id=c.id) }}">Cancelar</a></div>
+</form>
+</div>
+{% endblock %}

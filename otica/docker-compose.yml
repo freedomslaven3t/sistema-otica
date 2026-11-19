@@ -1,0 +1,34 @@
+# Versão online: aplicação + PostgreSQL.   Uso:  cp .env.example .env  (preencher)  &&  docker compose up -d --build
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - dados_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      OTICA_SENHA: ${OTICA_SENHA:?defina OTICA_SENHA no arquivo .env}
+      SECRET_KEY: ${SECRET_KEY:?defina SECRET_KEY no arquivo .env}
+      FUSO: ${FUSO:-America/Sao_Paulo}
+      COOKIE_SEGURO: ${COOKIE_SEGURO:-0}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  dados_pg:

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block titulo %}Sistema Ótica{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
+</head>
+<body>
+{% from '_macros.html' import csrf %}
+<header>
+  <strong>👓 Sistema Ótica</strong>
+  {% if request.endpoint != 'sistema.login' %}
+  <nav aria-label="Seções">
+    <a href="{{ url_for('sistema.inicio') }}" class="{{ 'on' if request.endpoint == 'sistema.inicio' }}">Início</a>
+    <a href="{{ url_for('clientes.lista') }}" class="{{ 'on' if request.blueprint == 'clientes' }}">Clientes</a>
+    <a href="{{ url_for('vendas.lista') }}" class="{{ 'on' if request.blueprint == 'vendas' }}">Vendas</a>
+    <a href="{{ url_for('sistema.backup') }}" class="{{ 'on' if request.endpoint and request.endpoint.startswith('sistema.backup') }}">Backup</a>
+  </nav>
+  {% if com_senha() %}<form method="post" action="{{ url_for('sistema.sair') }}">{{ csrf() }}<button class="btn sm sec" style="color:var(--on-pri);border-color:var(--on-pri)">Sair</button></form>{% endif %}
+  {% endif %}
+</header>
+{% with msgs = get_flashed_messages(with_categories=true) %}{% if msgs %}
+<div class="msgs" role="status">{% for cat, m in msgs %}<div class="msg {{ cat }}">{{ m }}</div>{% endfor %}</div>
+{% endif %}{% endwith %}
+<main>{% block conteudo %}{% endblock %}</main>
+</body>
+</html>

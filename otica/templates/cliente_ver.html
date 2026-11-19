@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf, excluir, status_venda, entrega %}
+{% block titulo %}{{ c.nome }} · Sistema Ótica{% endblock %}
+{% block conteudo %}
+<div class="topo"><h1>#{{ c.id }} · {{ c.nome }}</h1>
+  <div class="acoes" style="margin:0">
+    <a class="btn sec" href="{{ url_for('clientes.editar', id=c.id) }}">Editar cadastro</a>
+    <a class="btn" href="{{ url_for('vendas.nova', cliente_id=c.id) }}">+ Nova venda</a>
+  </div></div>
+
+<div class="card">
+  <p class="mut">CPF: {{ c.cpf or '-' }} · Telefone: {{ c.telefone or '-' }}
+    {% set wa = whatsapp(c.telefone) %}{% if wa %}(<a href="{{ wa }}" target="_blank" rel="noopener">WhatsApp</a>){% endif %}
+    · Nascimento: {{ c.nascimento|dbr or '-' }}<br>Endereço: {{ c.endereco or '-' }}<br>Observações: {{ c.obs or '-' }}</p>
+</div>
+
+<div class="card">
+  <div class="topo"><h2 style="margin:0">Receitas</h2><a class="btn sm" href="{{ url_for('clientes.receita_nova', id=c.id) }}">+ Nova receita</a></div>
+  {% for r in c.receitas %}
+  <div style="margin-bottom:14px">
+    <strong>{{ r.data|dbr }}</strong>{% if loop.first %} <span class="tag ok">mais recente</span>{% endif %}
+    {% if r.obs %}<span class="mut"> · {{ r.obs }}</span>{% endif %}
+    <div class="tw"><table class="rx">
+      <tr><th></th><th>Esférico</th><th>Cilíndrico</th><th>Eixo</th><th>Adição</th><th>DNP</th></tr>
+      <tr><th>OD</th><td>{{ r.od_esf or '-' }}</td><td>{{ r.od_cil or '-' }}</td><td>{{ r.od_eixo or '-' }}</td><td>{{ r.od_add or '-' }}</td><td>{{ r.od_dnp or '-' }}</td></tr>
+      <tr><th>OE</th><td>{{ r.oe_esf or '-' }}</td><td>{{ r.oe_cil or '-' }}</td><td>{{ r.oe_eixo or '-' }}</td><td>{{ r.oe_add or '-' }}</td><td>{{ r.oe_dnp or '-' }}</td></tr>
+    </table></div>
+    <div class="acoes" style="margin-top:6px"><a class="btn sm sec" href="{{ url_for('clientes.receita_editar', id=r.id) }}">Editar</a>
+      {{ excluir(url_for('clientes.receita_excluir', id=r.id), 'Excluir esta receita?', 'Excluir', 'btn sm bad') }}</div>
+  </div>
+  {% else %}<p class="vazio">Nenhuma receita cadastrada.</p>{% endfor %}
+</div>
+
+<div class="card">
+  <h2>Compras</h2>
+  {% if c.vendas %}<div class="tw"><table>
+    <tr><th>Nº</th><th>Data</th><th>Descrição</th><th>Valor</th><th>Pago</th><th>Pagamento</th><th>Entrega</th><th></th></tr>
+    {% for v in c.vendas %}<tr><td>{{ v.id }}</td><td>{{ v.data|dbr }}</td><td>{{ v.descricao }}</td><td>{{ v.valor|brl }}</td><td>{{ v.pago|brl }}</td>
+      <td>{{ status_venda(v) }}</td><td>{{ entrega(v) }}</td>
+      <td class="ac"><a class="btn sm sec" href="{{ url_for('vendas.ver', id=v.id) }}">Abrir</a></td></tr>{% endfor %}
+  </table></div>{% else %}<p class="vazio">Sem compras.</p>{% endif %}
+</div>
+
+<div class="acoes">{{ excluir(url_for('clientes.excluir', id=c.id), 'Excluir este cliente, as receitas e ' ~ c.vendas|length ~ ' venda(s)? Isso não pode ser desfeito.', 'Excluir cliente') }}</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block conteudo %}
+<div class="topo"><h1>Clientes</h1><a class="btn" href="{{ url_for('clientes.novo') }}">+ Novo cliente</a></div>
+<div class="card">
+  <form class="barra" method="get">
+    <input name="q" value="{{ q }}" placeholder="Buscar por número, nome, CPF ou telefone..." aria-label="Buscar cliente">
+    <button class="btn sec">Buscar</button>
+  </form>
+  {% if clientes %}<div class="tw"><table>
+    <tr><th>Nº</th><th>Nome</th><th>Telefone</th><th>Última consulta</th><th>Compras</th><th>Em aberto</th><th></th></tr>
+    {% for c in clientes %}<tr>
+      <td>{{ c.id }}</td><td>{{ c.nome }}</td><td>{{ c.telefone }}</td><td>{{ c.ultima_consulta|dbr }}</td>
+      <td>{{ c.comprado|brl }}</td><td>{{ c.em_aberto|brl }}</td>
+      <td class="ac"><a class="btn sm sec" href="{{ url_for('clientes.ver', id=c.id) }}">Abrir</a></td>
+    </tr>{% endfor %}</table></div>
+  {% else %}<p class="vazio">Nenhum cliente encontrado.</p>{% endif %}
+</div>
+{% endblock %}

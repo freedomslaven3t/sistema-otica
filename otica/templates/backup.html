@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf %}
+{% block conteudo %}
+<h1>Backup</h1>
+<div class="card">
+  <h2>Cópia de segurança</h2>
+  {% if sqlite %}
+  <p class="mut">Todos os dados ficam em um único arquivo (<code>dados/otica.db</code>). O sistema já guarda uma cópia por dia em <code>dados/backups</code> (as últimas 30).
+    Mesmo assim, <strong>copie o arquivo abaixo de vez em quando para um pen drive ou nuvem</strong>: se o computador quebrar, as cópias da pasta vão junto.</p>
+  <a class="btn" href="{{ url_for('sistema.baixar_banco') }}">⬇ Baixar cópia do banco (.db)</a>
+  {% if backups %}<p class="mut">Cópias automáticas: {{ backups|length }} (a mais recente: {{ backups[0] }}).</p>{% endif %}
+  {% else %}
+  <p class="mut">Este sistema usa PostgreSQL. Faça backups pelo painel do provedor do banco. O arquivo JSON abaixo também serve como cópia.</p>
+  {% endif %}
+</div>
+<div class="card">
+  <h2>Exportar para arquivo JSON</h2>
+  <p class="mut">Todos os clientes, receitas, vendas e pagamentos em um arquivo de texto. Serve para levar os dados a outro sistema, como a versão online.</p>
+  <a class="btn sec" href="{{ url_for('sistema.baixar_json') }}">⬇ Baixar arquivo .json</a>
+</div>
+<div class="card">
+  <h2>Importar arquivo .json</h2>
+  <p class="mut">Aceita o arquivo do <strong>sistema antigo</strong> (HTML) e os arquivos exportados daqui. A importação <strong>só adiciona</strong> o que ainda não existe: importar o mesmo arquivo duas vezes não duplica nada.</p>
+  <form method="post" action="{{ url_for('sistema.importar') }}" enctype="multipart/form-data">
+    {{ csrf() }}
+    <input type="file" name="arquivo" accept=".json,application/json" aria-label="Arquivo .json" required>
+    <div class="acoes"><button class="btn">Importar</button></div>
+  </form>
+</div>
+{% endblock %}

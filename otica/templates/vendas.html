@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import status_venda, entrega %}
+{% block conteudo %}
+<div class="topo"><h1>Vendas</h1><a class="btn" href="{{ url_for('vendas.nova') }}">+ Nova venda</a></div>
+<div class="card">
+  <form class="barra" method="get">
+    <input name="q" value="{{ q }}" placeholder="Buscar por cliente, número ou descrição..." aria-label="Buscar venda">
+    <select name="status" aria-label="Filtrar">
+      <option value="">Todas</option>
+      <option value="aberto" {{ 'selected' if status == 'aberto' }}>Em aberto</option>
+      <option value="quitadas" {{ 'selected' if status == 'quitadas' }}>Quitadas</option>
+      <option value="entrega" {{ 'selected' if status == 'entrega' }}>Entrega pendente</option>
+    </select>
+    <button class="btn sec">Filtrar</button>
+  </form>
+  {% if vendas %}<div class="tw"><table>
+    <tr><th>Nº</th><th>Data</th><th>Cliente</th><th>Descrição</th><th>Valor</th><th>Pago</th><th>Pagamento</th><th>Entrega</th><th></th></tr>
+    {% for v in vendas %}<tr><td>{{ v.id }}</td><td>{{ v.data|dbr }}</td><td>{{ v.cliente.nome }}</td><td>{{ v.descricao }}</td>
+      <td>{{ v.valor|brl }}</td><td>{{ v.pago|brl }}</td><td>{{ status_venda(v) }}</td><td>{{ entrega(v) }}</td>
+      <td class="ac"><a class="btn sm sec" href="{{ url_for('vendas.ver', id=v.id) }}">Abrir</a></td></tr>{% endfor %}
+  </table></div>
+  <p class="mut">{{ vendas|length }} venda(s) · Total {{ total|brl }} · A receber {{ a_receber|brl }}</p>
+  {% else %}<p class="vazio">Nenhuma venda encontrada.</p>{% endif %}
+</div>
+{% endblock %}

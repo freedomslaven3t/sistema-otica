@@ -1,0 +1,9 @@
+{% macro csrf() %}<input type="hidden" name="csrf" value="{{ csrf_token() }}">{% endmacro %}
+{% macro excluir(url, aviso, rotulo="Excluir", classe="btn bad") %}
+<form method="post" action="{{ url }}" onsubmit="return confirm('{{ aviso }}')">{{ csrf() }}<button class="{{ classe }}">{{ rotulo }}</button></form>
+{% endmacro %}
+{% macro status_venda(v) %}{% if v.quitada %}<span class="tag ok">Quitada</span>{% else %}<span class="tag ab">Em aberto {{ v.saldo|brl }}</span>{% endif %}{% endmacro %}
+{% macro entrega(v) %}{% if v.entregue_em %}<span class="tag ok">Entregue {{ v.entregue_em|dbr }}</span>
+{% elif v.atrasada %}<span class="tag ab">Atrasada ({{ v.entrega_prevista|dbr }})</span>
+{% elif v.entrega_prevista %}<span class="tag av">Prevista {{ v.entrega_prevista|dbr }}</span>
+{% else %}<span class="tag av">Sem previsão</span>{% endif %}{% endmacro %}

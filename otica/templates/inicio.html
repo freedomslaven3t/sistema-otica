@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf, entrega %}
+{% block conteudo %}
+<div class="grid">
+  <div class="card stat"><span>Clientes</span><b>{{ total_clientes }}</b></div>
+  <div class="card stat"><span>Vendido no mês</span><b>{{ vendido_mes|brl }}</b></div>
+  <div class="card stat"><span>Vendas no mês</span><b>{{ vendas_mes }}</b></div>
+  <div class="card stat"><span>A receber</span><b>{{ a_receber|brl }}</b></div>
+</div>
+<div class="acoes" style="margin:0 0 14px">
+  <a class="btn" href="{{ url_for('clientes.novo') }}">+ Novo cliente</a>
+  <a class="btn" href="{{ url_for('vendas.nova') }}">+ Nova venda</a>
+</div>
+<div class="dois">
+  <section class="card">
+    <h2>Entregas pendentes ({{ total_pendentes }})</h2>
+    {% if entregas %}<div class="tw"><table>
+      {% for v in entregas %}<tr>
+        <td><a href="{{ url_for('vendas.ver', id=v.id) }}">{{ v.cliente.nome }}</a><br><span class="mut">{{ v.descricao }}</span></td>
+        <td>{{ entrega(v) }}</td>
+        <td class="ac"><form method="post" action="{{ url_for('vendas.entregar', id=v.id) }}">{{ csrf() }}<input type="hidden" name="voltar" value="{{ url_for('sistema.inicio') }}"><button class="btn sm sec">Entregue</button></form></td>
+      </tr>{% endfor %}</table></div>
+    {% else %}<p class="vazio">Nenhuma entrega pendente.</p>{% endif %}
+  </section>
+  <section class="card">
+    <h2>Clientes para retorno ({{ total_retornos }})</h2>
+    <p class="mut">Última consulta há mais de 1 ano.</p>
+    {% if retornos %}<div class="tw"><table>
+      {% for c in retornos %}{% set wa = whatsapp(c.telefone, 'Olá, ' ~ c.nome.split()[0] ~ '! Já faz mais de um ano da sua última consulta. Que tal agendar um novo exame de vista?') %}<tr>
+        <td><a href="{{ url_for('clientes.ver', id=c.id) }}">{{ c.nome }}</a></td>
+        <td class="mut">{{ c.ultima_consulta|dbr }}</td>
+        <td class="ac">{% if wa %}<a class="btn sm sec" href="{{ wa }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}</td>
+      </tr>{% endfor %}</table></div>
+    {% else %}<p class="vazio">Ninguém para chamar agora.</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

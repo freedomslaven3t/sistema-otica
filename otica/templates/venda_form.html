@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf %}
+{% block conteudo %}
+<div class="card">
+<h1>{{ 'Editar venda nº ' ~ venda.id if venda else 'Nova venda' }}</h1>
+<form method="post">
+  {{ csrf() }}
+  <div class="campos">
+    <div class="largo"><label for="cliente_id">Cliente *</label>
+      <select id="cliente_id" name="cliente_id" required><option value="">Selecione...</option>
+        {% for c in clientes %}<option value="{{ c.id }}" {{ 'selected' if c.id|string == f.get('cliente_id','')|string }}>#{{ c.id }} · {{ c.nome }}</option>{% endfor %}
+      </select></div>
+    <div class="largo"><label for="descricao">Descrição (armação, lentes, serviço...) *</label><input id="descricao" name="descricao" value="{{ f.get('descricao','') }}" maxlength="200" required></div>
+    <div><label for="valor">Valor total (R$) *</label><input id="valor" name="valor" value="{{ f.get('valor','') }}" inputmode="decimal" placeholder="0,00" required></div>
+    <div><label for="data">Data da venda</label><input id="data" type="date" name="data" value="{{ f.get('data','') }}"></div>
+    <div><label for="entrega_prevista">Previsão de entrega</label><input id="entrega_prevista" type="date" name="entrega_prevista" value="{{ f.get('entrega_prevista','') }}"></div>
+    {% if not venda %}
+    <div><label for="entrada">Entrada (R$)</label><input id="entrada" name="entrada" value="{{ f.get('entrada','') }}" inputmode="decimal" placeholder="0,00"></div>
+    <div><label for="forma">Forma da entrada</label><select id="forma" name="forma">{% for x in FORMAS %}<option {{ 'selected' if x == f.get('forma') }}>{{ x }}</option>{% endfor %}</select></div>
+    {% endif %}
+  </div>
+  {% if venda %}<p class="mut">Pagamentos são registrados na tela da venda.</p>{% endif %}
+  <div class="acoes"><button class="btn">Salvar</button><a class="btn sec" href="{{ url_for('vendas.ver', id=venda.id) if venda else url_for('vendas.lista') }}">Cancelar</a></div>
+</form>
+</div>
+{% endblock %}

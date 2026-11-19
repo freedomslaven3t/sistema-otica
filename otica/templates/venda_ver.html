@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf, excluir, status_venda, entrega %}
+{% block conteudo %}
+<div class="topo"><h1>Venda nº {{ v.id }}</h1>
+  <div class="acoes" style="margin:0"><a class="btn sec" href="{{ url_for('vendas.editar', id=v.id) }}">Editar venda</a></div></div>
+
+<div class="card">
+  <p><strong>{{ v.descricao }}</strong><br>
+    Cliente: <a href="{{ url_for('clientes.ver', id=v.cliente_id) }}">{{ v.cliente.nome }}</a> · Data: {{ v.data|dbr }}</p>
+  <div class="grid" style="margin:10px 0">
+    <div class="stat"><span>Valor total</span><b>{{ v.valor|brl }}</b></div>
+    <div class="stat"><span>Pago</span><b>{{ v.pago|brl }}</b></div>
+    <div class="stat"><span>Saldo</span><b>{{ v.saldo|brl }}</b></div>
+  </div>
+  <p>{{ status_venda(v) }} {{ entrega(v) }}</p>
+  <div class="acoes">
+    {% if v.entregue_em %}
+      <form method="post" action="{{ url_for('vendas.desfazer_entrega', id=v.id) }}">{{ csrf() }}<button class="btn sm sec">Desfazer entrega</button></form>
+    {% else %}
+      <form method="post" action="{{ url_for('vendas.entregar', id=v.id) }}">{{ csrf() }}<button class="btn sm">Marcar como entregue</button></form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <h2>Pagamentos</h2>
+  {% if v.pagamentos %}<div class="tw"><table>
+    <tr><th>Data</th><th>Forma</th><th>Valor</th><th></th></tr>
+    {% for p in v.pagamentos %}<tr><td>{{ p.data|dbr }}</td><td>{{ p.forma }}</td><td>{{ p.valor|brl }}</td>
+      <td class="ac">{{ excluir(url_for('vendas.pagamento_excluir', id=p.id), 'Excluir este pagamento?', 'Excluir', 'btn sm bad') }}</td></tr>{% endfor %}
+  </table></div>{% else %}<p class="vazio">Nenhum pagamento registrado.</p>{% endif %}
+
+  {% if v.saldo > 0 %}
+  <form method="post" action="{{ url_for('vendas.pagar', id=v.id) }}" style="margin-top:14px">
+    {{ csrf() }}
+    <div class="campos">
+      <div><label for="valor">Valor pago (R$)</label><input id="valor" name="valor" value="{{ v.saldo|campo }}" inputmode="decimal" required></div>
+      <div><label for="forma">Forma</label><select id="forma" name="forma">{% for x in FORMAS %}<option>{{ x }}</option>{% endfor %}</select></div>
+      <div><label for="data">Data</label><input id="data" type="date" name="data" value="{{ hoje().isoformat() }}"></div>
+    </div>
+    <button class="btn">Registrar pagamento</button>
+  </form>
+  {% endif %}
+</div>
+
+<div class="acoes">{{ excluir(url_for('vendas.excluir', id=v.id), 'Excluir esta venda e seus pagamentos? Isso não pode ser desfeito.', 'Excluir venda') }}</div>
+{% endblock %}

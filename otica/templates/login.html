@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import csrf %}
+{% block titulo %}Entrar · Sistema Ótica{% endblock %}
+{% block conteudo %}
+<form method="post" class="card login">
+  {{ csrf() }}
+  <h1>Entrar</h1>
+  <label for="senha">Senha</label>
+  <input id="senha" type="password" name="senha" autocomplete="current-password" required autofocus>
+  <div class="acoes"><button class="btn">Entrar</button></div>
+</form>
+{% endblock %}
